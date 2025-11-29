@@ -14,12 +14,16 @@
       "id": "2",
       "type": "n8n-nodes-base.set",
       "name": "Capture messageId",
+      "typeVersion": 2,
       "parameters": {
+        "mode": "manual",
+        "keepOnlySet": true,
         "values": {
           "string": [
-            { "name": "messageId", "value": "={{ $json.message_id }}" }
+            { "name": "messageId", "value": "={{ $json.message_id || $json.messageId }}" }
           ]
-        }
+        },
+        "options": {}
       },
       "position": [250, 100]
     },

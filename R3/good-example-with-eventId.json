@@ -14,12 +14,16 @@
       "id": "2",
       "type": "n8n-nodes-base.set",
       "name": "Capture eventId",
+      "typeVersion": 2,
       "parameters": {
+        "mode": "manual",
+        "keepOnlySet": true,
         "values": {
           "string": [
-            { "name": "eventId", "value": "={{ $json.event_id }}" }
+            { "name": "eventId", "value": "={{ $json.event_id || $json.eventId }}" }
           ]
-        }
+        },
+        "options": {}
       },
       "position": [250, 100]
     },
