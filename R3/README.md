@@ -38,6 +38,54 @@ Idempotency means that **running the same operation multiple times produces the 
 
 ---
 
+## 🔧 How to Fix R3 Violation (Step-by-Step)
+
+**Your workflow triggered R3?** Here's exactly what to do:
+
+### Step 1: Add a Set Node
+
+1. In n8n editor, place a **Set node** between your webhook and mutation node
+2. Name it something clear: `"Capture eventId"` or `"Capture messageId"`
+3. Wire it: `Webhook → Set → Mutation`
+
+### Step 2: Configure the Set Node
+
+In the Set node parameters, add your idempotency key:
+
+**Simple approach (Google Sheets):**
+```
+Set node → Values (String)
+- Name: eventId
+- Value: ={{ $json.event_id }}
+```
+
+**Robust approach (Database):**
+```
+Set node → Values (String)
+- Name: messageId
+- Value: ={{ $json.message_id }}
+```
+
+### Step 3: Use It in Your Mutation
+
+- **Google Sheets:** Add an `eventId` column; deduplicate manually
+- **Database:** Add `ON CONFLICT (messageId) DO NOTHING` to your INSERT query
+
+### That's it! 🎉
+
+FlowLint will now detect the `eventId` or `messageId` in your Set node's parameters upstream of the mutation node.
+
+---
+
+## How to Choose: Simple vs. Robust?
+
+| Need | Choose | Example File |
+|------|--------|--------------|
+| Google Sheets, quick setup | **Simple** (eventId) | `good-example-with-eventId.json` |
+| Database, production-ready | **Robust** (messageId + DB constraint) | `good-example-with-messageId.json` |
+
+---
+
 ## Example 1: ❌ BAD - No Idempotency Guard
 
 ### File: `bad-example.json`
@@ -79,26 +127,29 @@ idempotency key, such as one of: eventId, messageId"
 
 ---
 
-## Example 2: ✅ GOOD - Using `eventId` with Google Sheets
+## Example 2: ✅ GOOD (Simple) - Using `eventId` with Google Sheets
 
 ### File: `good-example-with-eventId.json`
 
 ```mermaid
 %%{init: { "theme": "base", "themeVariables": { "primaryColor": "#38bdf8", "secondaryColor": "#22c55e", "tertiaryColor": "#e2e8f0", "primaryTextColor": "#0f172a", "lineColor": "#94a3b8", "edgeLabelBackground": "#e2e8f0", "background": "transparent" } } }%%
 graph LR
-    A["🔔 Webhook Trigger<br/>(incoming-data)<br/>📌 Extracts: eventId"] -->|passes eventId| B["⚙️ Transform Data<br/>(Set node)<br/>📌 Preserves: eventId"]
-    B -->|eventId available| C["📝 Write to Sheet<br/>(Google Sheets)<br/>📌 Uses eventId as key"]
+    A["🔔 Webhook Trigger<br/>(incoming-data)"] -->|raw payload| B["⚙️ Capture eventId<br/>(Set node)<br/>📌 name: eventId"]
+    B -->|eventId in workflow| C["📝 Write to Sheet<br/>(Google Sheets)<br/>📌 Dedup on eventId"]
 
     style A fill:#d4edda
     style B fill:#d4edda
     style C fill:#d4edda
 ```
 
-**How it works:**
+**The Simple Approach - Best for Google Sheets:**
 
-1. **Webhook node** receives payload (no special config needed beyond path/method).
+1. **Webhook node** receives raw payload (no modification):
+   ```
+   Payload: { "event_id": "evt_12345", "name": "John", ... }
+   ```
 
-2. **Set/Transform node** copies `event_id` from the payload into a stable field:
+2. **Set node** (`"Capture eventId"`) extracts the ID:
    ```json
    {
      "parameters": {
@@ -110,10 +161,12 @@ graph LR
      }
    }
    ```
+   → FlowLint detects `"eventId"` in Set node parameters ✅
 
-3. **Google Sheets** stores `eventId` in a dedicated column you deduplicate on.
-   - First webhook fire: row with eventId = `evt_12345`
-   - Second webhook fire (retry): same eventId → should be rejected/ignored by your sheet-side logic (data validation/script).
+3. **Google Sheets** stores the data with `eventId` column:
+   - First webhook fire: Row 1 with eventId = `evt_12345`
+   - Second webhook fire (retry): Row 2 would have same eventId = `evt_12345`
+   - You manually deduplicate: data validation, Apps Script, or manual cleanup
 
 **FlowLint Output:**
 ```
@@ -127,37 +180,58 @@ Idempotency key 'eventId' detected upstream of mutation node.
 
 ---
 
-## Example 3: ✅ GOOD - Using `messageId` with Database
+## Example 3: ✅ GOOD (Robust) - Using `messageId` with Database
 
 ### File: `good-example-with-messageId.json`
 
 ```mermaid
 %%{init: { "theme": "base", "themeVariables": { "primaryColor": "#38bdf8", "secondaryColor": "#22c55e", "tertiaryColor": "#e2e8f0", "primaryTextColor": "#0f172a", "lineColor": "#94a3b8", "edgeLabelBackground": "#e2e8f0", "background": "transparent" } } }%%
 graph LR
-    A["🔔 Message Webhook<br/>(messages)<br/>📌 Extracts: messageId"] -->|passes messageId| B["🗄️ Insert Message<br/>(Postgres)<br/>ON CONFLICT DO NOTHING<br/>📌 Enforced by DB"]
+    A["🔔 Message Webhook<br/>(messages)"] -->|raw payload| B["⚙️ Capture messageId<br/>(Set node)<br/>📌 name: messageId"]
+    B -->|messageId in workflow| C["🗄️ Insert Message<br/>(Postgres)<br/>ON CONFLICT DO NOTHING"]
 
     style A fill:#d4edda
     style B fill:#d4edda
+    style C fill:#d4edda
 ```
 
-**How it works:**
+**The Robust Approach - Best for Databases:**
 
-1. **Webhook node** receives payload; a Set node (or expression on the DB node) copies `message_id` to `messageId`.
+1. **Webhook node** receives raw payload:
+   ```
+   Payload: { "message_id": "msg_789", "content": "Hello", ... }
+   ```
 
-2. **Database query** uses `ON CONFLICT`:
+2. **Set node** (`"Capture messageId"`) extracts the ID:
+   ```json
+   {
+     "parameters": {
+       "values": {
+         "string": [
+           { "name": "messageId", "value": "={{ $json.message_id }}" }
+         ]
+       }
+     }
+   }
+   ```
+   → FlowLint detects `"messageId"` in Set node parameters ✅
+
+3. **Database query** uses `ON CONFLICT` for guaranteed idempotency:
    ```sql
    INSERT INTO messages (message_id, content, created_at)
    VALUES ($1, $2, NOW())
    ON CONFLICT (message_id) DO NOTHING
    ```
 
-3. **Database enforcement:**
-   - Setup: Create unique constraint on `message_id`
-     ```sql
-     CREATE UNIQUE INDEX idx_messages_message_id ON messages(message_id);
-     ```
-   - First insert: Succeeds
-   - Second insert (retry): `ON CONFLICT` silently ignores
+4. **Database setup** (one-time):
+   ```sql
+   CREATE UNIQUE INDEX idx_messages_message_id ON messages(message_id);
+   ```
+
+5. **How it works:**
+   - First webhook fire: INSERT succeeds, row created
+   - Second webhook fire (retry): INSERT fails on unique constraint, `ON CONFLICT DO NOTHING` silently ignores it
+   - Result: Only one row, guaranteed idempotency ✅
 
 **FlowLint Output:**
 ```
@@ -165,10 +239,11 @@ graph LR
 Idempotency key 'messageId' detected upstream of mutation node.
 ```
 
-**Why this is better than Example 2:**
-- ✅ Enforcement at database level (guaranteed idempotency)
-- ✅ No manual dedup logic in the workflow
-- ✅ Works across multiple applications
+**Why this is more robust than Example 2:**
+- ✅ Enforcement at database level (guaranteed, no manual dedup)
+- ✅ No application logic needed
+- ✅ Works across multiple applications/services
+- ✅ Production-ready pattern
 
 ---
 
@@ -186,36 +261,16 @@ Idempotency key 'messageId' detected upstream of mutation node.
 
 ## How to Fix the Bad Example
 
-### Option A: Add eventId (Like Example 2)
+**Refer to the "🔧 How to Fix R3 Violation" section near the top of this document for step-by-step instructions.**
 
-1. Add a Set node that copies the incoming payload ID into `eventId`:
-   ```json
-   "values": {
-     "string": [
-       { "name": "eventId", "value": "={{ $json.event_id }}" }
-     ]
-   }
-   ```
+In summary:
+1. Add a **Set node** between webhook and mutation
+2. Extract your idempotency key (`eventId` or `messageId`)
+3. Use it to prevent duplicates downstream
 
-2. Keep it on the path to the writer node.
-
-3. In Google Sheets, use eventId column for duplicate detection
-
-### Option B: Add messageId (Like Example 3)
-
-1. Add a Set node that copies the incoming payload ID into `messageId`:
-   ```json
-   "values": {
-     "string": [
-       { "name": "messageId", "value": "={{ $json.msg_id }}" }
-     ]
-   }
-   ```
-
-2. If using a database, add `ON CONFLICT` clause:
-   ```sql
-   INSERT INTO ... ON CONFLICT (message_id) DO NOTHING
-   ```
+Choose based on your target system:
+- **Google Sheets?** → Example 2 (Simple, eventId)
+- **Database?** → Example 3 (Robust, messageId + DB constraint)
 
 ---
 

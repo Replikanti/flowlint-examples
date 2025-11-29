@@ -6,24 +6,18 @@
       "name": "Webhook Trigger",
       "parameters": {
         "path": "incoming-data",
-        "httpMethod": "POST",
-        "body": {
-          "eventId": "={{ $json.event_id }}"
-        }
+        "httpMethod": "POST"
       },
       "position": [100, 100]
     },
     {
       "id": "2",
       "type": "n8n-nodes-base.set",
-      "name": "Transform Data",
+      "name": "Capture eventId",
       "parameters": {
         "values": {
           "string": [
             { "name": "eventId", "value": "={{ $json.event_id }}" }
-          ],
-          "json": [
-            { "name": "body", "value": "={{ $json }}" }
           ]
         }
       },
@@ -46,14 +40,14 @@
       "main": [
         [
           {
-            "node": "Transform Data",
+            "node": "Capture eventId",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Transform Data": {
+    "Capture eventId": {
       "main": [
         [
           {
@@ -66,13 +60,15 @@
     }
   },
   "meta": {
-    "description": "✅ GOOD: Webhook extracts eventId from incoming payload. Transform node passes it along. Google Sheets can use eventId column as unique key to prevent duplicates.",
-    "idempotency_strategy": "eventId from webhook payload",
+    "description": "✅ GOOD (Simple): Webhook receives payload. Set node extracts eventId. Google Sheets write uses eventId column as unique key.",
+    "idempotency_strategy": "eventId - simple approach for Google Sheets",
+    "approach": "Simple",
     "notes": [
-      "The webhook node captures 'eventId' in its parameters",
-      "The Set node transforms and preserves the eventId",
-      "FlowLint detects the 'eventId' upstream of the mutation node",
-      "In Google Sheets, use data validation or duplicate check to prevent duplicate rows with same eventId"
+      "Webhook receives raw payload (e.g., { event_id: 'evt_123', name: 'John', ... })",
+      "Set node extracts 'eventId' field into workflow variables",
+      "FlowLint detects the 'eventId' parameter in Set node upstream of mutation",
+      "Google Sheets can deduplicate using eventId column (manual dedup via data validation or Apps Script)",
+      "Simpler setup, no DB constraints needed"
     ]
   }
 }
