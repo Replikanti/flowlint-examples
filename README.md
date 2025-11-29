@@ -204,5 +204,5 @@ Each example file contains metadata describing its purpose:
 
 ## Support / Feedback
 
-- Docs or examples in this public repo: ![open an issue](https://github.com/Replikanti/flowlint-examples/issues/new).
+- Docs or examples in this public repo: [open an issue](https://github.com/Replikanti/flowlint-examples/issues/new).
 - Product/runtime bugs or feature requests: submit via https://flowlint.dev/support (tickets are routed to the private tracker).
