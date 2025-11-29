@@ -9,11 +9,16 @@
 ### TL;DR (FlowLint signal)
 - Has webhook/trigger? ✅
 - Has mutation node? ✅
-- Any upstream node params contain one of the key candidates (`eventId`, `messageId` by default)?  
-  - Yes → pass  
+- Any upstream node params contain one of the key candidates in **field names or values** (including expressions)?
+  - Yes → pass
   - No → fail
 
-What this means: FlowLint only checks that an idempotency key (e.g., `eventId/messageId`) exists upstream and flows to the mutation. Preventing duplicates is done by the sink (DB UNIQUE + UPSERT/`ON CONFLICT`, idempotency header at the API, or cache-based dedup).
+**How the search works:**
+- Searches upstream node parameters recursively
+- Looks for candidate keys in field **names** (`eventId`) and **values** (including `{{ ... }}` expressions)
+- Case-insensitive matching
+
+**What this means:** FlowLint only checks that an idempotency key (e.g., `eventId/messageId`) exists upstream and flows to the mutation. Preventing duplicates is done by the sink (DB UNIQUE + UPSERT/`ON CONFLICT`, idempotency header at the API, or cache-based dedup).
 
 ---
 
