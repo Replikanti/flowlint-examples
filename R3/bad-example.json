@@ -1,0 +1,41 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook Trigger",
+      "parameters": {
+        "path": "incoming-data",
+        "httpMethod": "POST"
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.googleSheets",
+      "name": "Write to Sheet",
+      "parameters": {
+        "spreadsheetId": "abc123xyz",
+        "range": "Sheet1!A1",
+        "options": {}
+      },
+      "position": [400, 100]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Write to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "❌ BAD: Webhook → Google Sheets without idempotency guard. If webhook fires twice, duplicates will be created."
+  }
+}

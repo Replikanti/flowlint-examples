@@ -1,0 +1,72 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Message Webhook",
+      "parameters": {
+        "path": "messages",
+        "httpMethod": "POST"
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.set",
+      "name": "Capture messageId",
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "messageId", "value": "={{ $json.message_id }}" }
+          ]
+        }
+      },
+      "position": [250, 100]
+    },
+    {
+      "id": "3",
+      "type": "n8n-nodes-base.postgres",
+      "name": "Insert Message (Idempotent)",
+      "parameters": {
+        "query": "INSERT INTO messages (message_id, content, created_at) VALUES ($1, $2, NOW()) ON CONFLICT (message_id) DO NOTHING",
+        "options": {}
+      },
+      "position": [400, 100]
+    }
+  ],
+  "connections": {
+    "Message Webhook": {
+      "main": [
+        [
+          {
+            "node": "Capture messageId",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capture messageId": {
+      "main": [
+        [
+          {
+            "node": "Insert Message (Idempotent)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "✅ GOOD: Webhook captures messageId via Set node. Database INSERT uses ON CONFLICT to silently ignore duplicates.",
+    "idempotency_strategy": "messageId with database unique constraint",
+    "notes": [
+      "The Set node captures 'messageId' from the payload",
+      "The Postgres node has message_id as a unique key (requires: CREATE UNIQUE INDEX idx_messages_message_id ON messages(message_id))",
+      "ON CONFLICT DO NOTHING ensures idempotency: if same messageId comes twice, only first insert succeeds",
+      "FlowLint detects the 'messageId' upstream of the mutation node (Postgres)",
+      "This is the most robust approach for databases"
+    ]
+  }
+}

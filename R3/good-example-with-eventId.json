@@ -1,0 +1,78 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook Trigger",
+      "parameters": {
+        "path": "incoming-data",
+        "httpMethod": "POST",
+        "body": {
+          "eventId": "={{ $json.event_id }}"
+        }
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.set",
+      "name": "Transform Data",
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "eventId", "value": "={{ $json.event_id }}" }
+          ],
+          "json": [
+            { "name": "body", "value": "={{ $json }}" }
+          ]
+        }
+      },
+      "position": [250, 100]
+    },
+    {
+      "id": "3",
+      "type": "n8n-nodes-base.googleSheets",
+      "name": "Write to Sheet",
+      "parameters": {
+        "spreadsheetId": "abc123xyz",
+        "range": "Sheet1!A1",
+        "options": {}
+      },
+      "position": [400, 100]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Transform Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Data": {
+      "main": [
+        [
+          {
+            "node": "Write to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "✅ GOOD: Webhook extracts eventId from incoming payload. Transform node passes it along. Google Sheets can use eventId column as unique key to prevent duplicates.",
+    "idempotency_strategy": "eventId from webhook payload",
+    "notes": [
+      "The webhook node captures 'eventId' in its parameters",
+      "The Set node transforms and preserves the eventId",
+      "FlowLint detects the 'eventId' upstream of the mutation node",
+      "In Google Sheets, use data validation or duplicate check to prevent duplicate rows with same eventId"
+    ]
+  }
+}
