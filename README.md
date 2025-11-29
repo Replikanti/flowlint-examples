@@ -345,9 +345,10 @@ When adding a new rule example:
 If you have questions about these examples:
 1. Check the rule's `README.md` for detailed explanations
 2. Review the n8n documentation: https://docs.n8n.io/
-3. Open an issue: https://github.com/Replikanti/flowlint/issues
+3. Docs/examples feedback: open an issue in this repo.
+4. Product/runtime bugs or feature requests: submit via https://flowlint.dev/support (tickets go to the private tracker).
 
 ---
 
-**Last Updated:** 2024
-**FlowLint Version:** ≥ 0.1.0
+**Last Updated:** 11/2025
+**FlowLint Version:** ≥ 0.3.0
