@@ -88,6 +88,8 @@ FlowLint will now detect the `eventId` or `messageId` in your Set node's paramet
 
 ## Example 1: ❌ BAD - No Idempotency Guard
 
+**Reminder:** FlowLint only checks that an idempotency key exists upstream of the mutation. The "good" examples pass because the Set node carries `eventId`/`messageId`; the enforcement patterns shown (unique key, `ON CONFLICT`, etc.) are best practices but not evaluated by R3.
+
 ### File: `bad-example.json`
 
 ```mermaid
@@ -176,6 +178,7 @@ graph LR
 ✅ PASS
 Idempotency key 'eventId' detected upstream of mutation node.
 ```
+FlowLint passes here solely because the Set node carries `eventId` on the path to the mutation. It does not check how you deduplicate in Sheets.
 
 **Deployment Notes:**
 - In Google Sheets, add a column "Event ID" as unique identifier.
@@ -244,6 +247,7 @@ graph LR
 ✅ PASS
 Idempotency key 'messageId' detected upstream of mutation node.
 ```
+FlowLint passes here because the Set node carries `messageId` on the path to the mutation. R3 does not verify the unique index or `ON CONFLICT` clause (those are for real idempotency, outside the check).
 
 **Why this is more robust than Example 2:**
 - ✅ Enforcement at database level (guaranteed, no manual dedup)
