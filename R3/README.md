@@ -43,6 +43,7 @@ Idempotency means that **running the same operation multiple times produces the 
 ### File: `bad-example.json`
 
 ```mermaid
+%%{init: { "theme": "base", "themeVariables": { "primaryColor": "#38bdf8", "secondaryColor": "#fbbf24", "tertiaryColor": "#e2e8f0", "primaryTextColor": "#0f172a", "lineColor": "#94a3b8", "edgeLabelBackground": "#e2e8f0", "background": "transparent" } } }%%
 graph LR
     A["🔔 Webhook Trigger<br/>(incoming-data)"] -->|no idempotency guard| B["📝 Write to Sheet<br/>(Google Sheets)"]
 
@@ -83,6 +84,7 @@ idempotency key, such as one of: eventId, messageId"
 ### File: `good-example-with-eventId.json`
 
 ```mermaid
+%%{init: { "theme": "base", "themeVariables": { "primaryColor": "#38bdf8", "secondaryColor": "#22c55e", "tertiaryColor": "#e2e8f0", "primaryTextColor": "#0f172a", "lineColor": "#94a3b8", "edgeLabelBackground": "#e2e8f0", "background": "transparent" } } }%%
 graph LR
     A["🔔 Webhook Trigger<br/>(incoming-data)<br/>📌 Extracts: eventId"] -->|passes eventId| B["⚙️ Transform Data<br/>(Set node)<br/>📌 Preserves: eventId"]
     B -->|eventId available| C["📝 Write to Sheet<br/>(Google Sheets)<br/>📌 Uses eventId as key"]
@@ -130,6 +132,7 @@ Idempotency key 'eventId' detected upstream of mutation node.
 ### File: `good-example-with-messageId.json`
 
 ```mermaid
+%%{init: { "theme": "base", "themeVariables": { "primaryColor": "#38bdf8", "secondaryColor": "#22c55e", "tertiaryColor": "#e2e8f0", "primaryTextColor": "#0f172a", "lineColor": "#94a3b8", "edgeLabelBackground": "#e2e8f0", "background": "transparent" } } }%%
 graph LR
     A["🔔 Message Webhook<br/>(messages)<br/>📌 Extracts: messageId"] -->|passes messageId| B["🗄️ Insert Message<br/>(Postgres)<br/>ON CONFLICT DO NOTHING<br/>📌 Enforced by DB"]
 
