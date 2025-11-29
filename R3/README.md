@@ -13,7 +13,6 @@
   - Yes → pass  
   - No → fail
 
-What this means: FlowLint only checks, že **na větvi k mutaci existuje a putuje idempotency klíč** (př. `eventId/messageId`). Skutečné zabránění duplicitám musí udělat cílový zápis (DB UNIQUE + UPSERT/`ON CONFLICT`, idempotency header na API, nebo dedup v cache).
 What this means: FlowLint only checks that an idempotency key (e.g., `eventId/messageId`) exists upstream and flows to the mutation. Preventing duplicates is done by the sink (DB UNIQUE + UPSERT/`ON CONFLICT`, idempotency header at the API, or cache-based dedup).
 
 ---
