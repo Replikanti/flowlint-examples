@@ -249,7 +249,7 @@ Idempotency key 'messageId' detected upstream of mutation node.
 
 ## Key Differences
 
-| Aspect | Bad Example | Good Example 1 | Good Example 2 |
+| Aspect | Example 1<br/>(Bad) | Example 2<br/>(Simple) | Example 3<br/>(Robust) |
 |--------|------------|---------------|---------------|
 | **Idempotency Guard** | None | `eventId` param | `messageId` param |
 | **Enforcement** | Manual/None | App logic needed | Database constraint |

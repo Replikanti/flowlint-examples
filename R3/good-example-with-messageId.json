@@ -59,14 +59,16 @@
     }
   },
   "meta": {
-    "description": "✅ GOOD: Webhook captures messageId via Set node. Database INSERT uses ON CONFLICT to silently ignore duplicates.",
-    "idempotency_strategy": "messageId with database unique constraint",
+    "description": "✅ GOOD (Robust): Webhook receives payload. Set node extracts messageId. Postgres INSERT uses ON CONFLICT for guaranteed idempotency.",
+    "idempotency_strategy": "messageId - robust approach with database constraint",
+    "approach": "Robust",
     "notes": [
-      "The Set node captures 'messageId' from the payload",
-      "The Postgres node has message_id as a unique key (requires: CREATE UNIQUE INDEX idx_messages_message_id ON messages(message_id))",
-      "ON CONFLICT DO NOTHING ensures idempotency: if same messageId comes twice, only first insert succeeds",
-      "FlowLint detects the 'messageId' upstream of the mutation node (Postgres)",
-      "This is the most robust approach for databases"
+      "Webhook receives raw payload (e.g., { message_id: 'msg_789', content: '...', ... })",
+      "Set node extracts 'messageId' field into workflow variables",
+      "FlowLint detects the 'messageId' parameter in Set node upstream of mutation",
+      "Postgres INSERT uses ON CONFLICT (message_id) DO NOTHING for guaranteed idempotency",
+      "Setup: CREATE UNIQUE INDEX idx_messages_message_id ON messages(message_id)",
+      "Production-ready: enforcement at database level, no manual dedup logic needed"
     ]
   }
 }
