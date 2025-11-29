@@ -199,6 +199,11 @@ Each example file contains metadata describing its purpose:
 
 ---
 
+## Support / Feedback
+
+- Docs or examples in this public repo: open an issue here.
+- Product/runtime bugs or feature requests: submit via [flowlint.dev/support](https://flowlint.dev/support) (tickets are routed to the private tracker).
+
 ## Best Practices Summary
 
 ### Before Mutations 🛡️
@@ -346,4 +351,3 @@ If you have questions about these examples:
 
 **Last Updated:** 2024
 **FlowLint Version:** ≥ 0.1.0
-
