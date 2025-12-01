@@ -1,0 +1,83 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook",
+      "parameters": {
+        "path": "dead-end-demo",
+        "httpMethod": "POST"
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.postgres",
+      "name": "Save Lead",
+      "parameters": {
+        "query": "INSERT INTO leads(name,email) VALUES($1,$2)",
+        "options": {}
+      },
+      "position": [320, 100]
+    },
+    {
+      "id": "3",
+      "type": "n8n-nodes-base.slack",
+      "name": "Slack Alert",
+      "parameters": {
+        "channel": "#ops-alerts",
+        "text": "Lead saved: {{ $json.email }}"
+      },
+      "position": [540, 100]
+    },
+    {
+      "id": "4",
+      "type": "n8n-nodes-base.noOp",
+      "name": "Done",
+      "parameters": {},
+      "position": [760, 100]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Save Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Lead": {
+      "main": [
+        [
+          {
+            "node": "Slack Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Alert": {
+      "main": [
+        [
+          {
+            "node": "Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "✅ GOOD: All nodes are connected; no dead ends. Slack alert is part of the main path.",
+    "notes": [
+      "FlowLint R5 passes: each node has an outgoing edge",
+      "Intentional terminal node named Done clarifies end of flow"
+    ]
+  }
+}
