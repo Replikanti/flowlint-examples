@@ -1,0 +1,54 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook",
+      "parameters": {
+        "path": "dead-end-demo",
+        "httpMethod": "POST"
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.postgres",
+      "name": "Save Lead",
+      "parameters": {
+        "query": "INSERT INTO leads(name,email) VALUES($1,$2)",
+        "options": {}
+      },
+      "position": [320, 100]
+    },
+    {
+      "id": "3",
+      "type": "n8n-nodes-base.slack",
+      "name": "Slack Alert (Orphaned)",
+      "parameters": {
+        "channel": "#ops-alerts",
+        "text": "Lead saved"
+      },
+      "position": [320, 220]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Save Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "❌ BAD: Slack Alert node is disconnected (no outgoing edge to or from flow). FlowLint R5 flags dead ends.",
+    "notes": [
+      "Orphaned node likely forgotten during refactor",
+      "Wire it or remove it to keep flow clear"
+    ]
+  }
+}
