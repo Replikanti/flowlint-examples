@@ -1,0 +1,78 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook",
+      "parameters": {
+        "path": "naming-demo",
+        "httpMethod": "POST"
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Create Lead (CRM API)",
+      "parameters": {
+        "url": "https://api.crm.example.com/leads",
+        "method": "POST",
+        "options": {
+          "retry": {
+            "count": 3
+          }
+        }
+      },
+      "position": [320, 100]
+    },
+    {
+      "id": "3",
+      "type": "n8n-nodes-base.set",
+      "name": "Map lead fields",
+      "typeVersion": 2,
+      "parameters": {
+        "mode": "manual",
+        "values": {
+          "string": [
+            {
+              "name": "status",
+              "value": "qualified"
+            }
+          ]
+        }
+      },
+      "position": [520, 100]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Create Lead (CRM API)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Lead (CRM API)": {
+      "main": [
+        [
+          {
+            "node": "Map lead fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "✅ GOOD: Intentful node names show system and purpose. FlowLint R10 passes.",
+    "notes": [
+      "Names communicate intent and target system",
+      "Retry on API node pairs with clarity"
+    ]
+  }
+}
