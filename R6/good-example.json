@@ -1,0 +1,95 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook",
+      "parameters": {
+        "path": "long-running-demo",
+        "httpMethod": "POST"
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.splitInBatches",
+      "name": "Split In Batches (Guarded)",
+      "parameters": {
+        "batchSize": 50,
+        "options": {
+          "maxItems": 500
+        }
+      },
+      "position": [320, 100]
+    },
+    {
+      "id": "3",
+      "type": "n8n-nodes-base.function",
+      "name": "Process Batch",
+      "parameters": {
+        "functionCode": "return items;"
+      },
+      "position": [520, 100]
+    },
+    {
+      "id": "4",
+      "type": "n8n-nodes-base.wait",
+      "name": "Wait (5s backoff)",
+      "parameters": {
+        "interval": 5,
+        "unit": "seconds"
+      },
+      "position": [520, 220]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches (Guarded)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches (Guarded)": {
+      "main": [
+        [
+          {
+            "node": "Process Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Batch": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches (Guarded)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait (5s backoff)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "✅ GOOD: Loop is bounded (max 500 items) with short wait backoff. FlowLint R6 passes.",
+    "notes": [
+      "Guarded loop prevents infinite runs",
+      "Wait/backoff reduces load and avoids timeouts",
+      "Within default thresholds (max_iterations 1000, timeout_ms 300000)"
+    ]
+  }
+}
