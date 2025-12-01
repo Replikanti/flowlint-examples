@@ -1,0 +1,114 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook",
+      "parameters": {
+        "path": "unhandled-error-demo",
+        "httpMethod": "POST"
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Push to CRM",
+      "parameters": {
+        "url": "https://api.crm.example.com/leads",
+        "method": "POST",
+        "options": {
+          "retry": {
+            "count": 3,
+            "strategy": "exponential",
+            "baseMs": 500
+          }
+        }
+      },
+      "position": [320, 100]
+    },
+    {
+      "id": "3",
+      "type": "n8n-nodes-base.googleSheets",
+      "name": "Save to Sheet",
+      "parameters": {
+        "spreadsheetId": "abc123xyz",
+        "range": "Sheet1!A1",
+        "options": {}
+      },
+      "position": [540, 80]
+    },
+    {
+      "id": "4",
+      "type": "n8n-nodes-base.slack",
+      "name": "Slack Alert",
+      "parameters": {
+        "channel": "#ops-alerts",
+        "text": ":warning: CRM push failed for {{ $json.email || 'unknown' }}",
+        "additionalFields": {}
+      },
+      "position": [540, 200]
+    },
+    {
+      "id": "5",
+      "type": "n8n-nodes-base.queue",
+      "name": "DLQ (Queue)",
+      "parameters": {
+        "queue": "crm_failures"
+      },
+      "position": [760, 200]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Push to CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Push to CRM": {
+      "main": [
+        [
+          {
+            "node": "Save to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ],
+      "error": [
+        [
+          {
+            "node": "Slack Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Alert": {
+      "main": [
+        [
+          {
+            "node": "DLQ (Queue)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "✅ GOOD: Error branch exists with alert and DLQ; retries configured. FlowLint R12 passes.",
+    "notes": [
+      "Error path surfaces failures and preserves payload",
+      "Success path isolated; no continueOnFail",
+      "Pairs retry (R1) with observable handling"
+    ]
+  }
+}
