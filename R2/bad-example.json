@@ -1,0 +1,72 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook Trigger",
+      "parameters": {
+        "path": "new-lead",
+        "httpMethod": "POST"
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Create Lead (API)",
+      "parameters": {
+        "url": "https://api.crm.example.com/leads",
+        "method": "POST",
+        "options": {
+          "retry": {
+            "count": 0
+          }
+        },
+        "continueOnFail": true
+      },
+      "position": [360, 100]
+    },
+    {
+      "id": "3",
+      "type": "n8n-nodes-base.googleSheets",
+      "name": "Write to Sheet",
+      "parameters": {
+        "spreadsheetId": "abc123xyz",
+        "range": "Sheet1!A1",
+        "options": {}
+      },
+      "position": [600, 100]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Create Lead (API)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Lead (API)": {
+      "main": [
+        [
+          {
+            "node": "Write to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "❌ BAD: continueOnFail=true swallows API errors and downstream nodes keep running.",
+    "notes": [
+      "FlowLint R2 flags continueOnFail=true",
+      "No error branch; failures are silent"
+    ]
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook Trigger",
+      "parameters": {
+        "path": "new-lead",
+        "httpMethod": "POST"
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Create Lead (API)",
+      "parameters": {
+        "url": "https://api.crm.example.com/leads",
+        "method": "POST",
+        "options": {
+          "retry": {
+            "count": 3,
+            "strategy": "exponential",
+            "baseMs": 500,
+            "jitter": true
+          }
+        }
+      },
+      "position": [360, 80]
+    },
+    {
+      "id": "3",
+      "type": "n8n-nodes-base.googleSheets",
+      "name": "Write to Sheet",
+      "parameters": {
+        "spreadsheetId": "abc123xyz",
+        "range": "Sheet1!A1",
+        "options": {}
+      },
+      "position": [600, 40]
+    },
+    {
+      "id": "4",
+      "type": "n8n-nodes-base.slack",
+      "name": "Slack Alert",
+      "parameters": {
+        "channel": "#ops-alerts",
+        "text": "Lead creation failed for {{ $json.email || 'unknown' }}",
+        "additionalFields": {}
+      },
+      "position": [600, 160]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Create Lead (API)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Lead (API)": {
+      "main": [
+        [
+          {
+            "node": "Write to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ],
+      "error": [
+        [
+          {
+            "node": "Slack Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "✅ GOOD: continueOnFail disabled; error branch sends Slack alert while success path continues normally.",
+    "notes": [
+      "FlowLint R2 passes because continueOnFail is false/absent",
+      "Error branch makes failures visible",
+      "Retry configured (R1 synergy) before error routing"
+    ]
+  }
+}
