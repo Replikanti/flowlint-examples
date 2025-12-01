@@ -1,0 +1,45 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook Trigger",
+      "parameters": {
+        "path": "new-lead",
+        "httpMethod": "POST"
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Create Lead (API)",
+      "parameters": {
+        "url": "https://api.crm.example.com/leads",
+        "method": "POST",
+        "options": {}
+      },
+      "position": [360, 100]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Create Lead (API)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "❌ BAD: HTTP Request without retry/backoff. A single 429/timeout fails the run and FlowLint R1 triggers.",
+    "notes": [
+      "API node lacks options.retry",
+      "Susceptible to rate limits and transient network failures"
+    ]
+  }
+}
