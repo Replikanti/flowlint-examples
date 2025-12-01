@@ -1,0 +1,74 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook",
+      "parameters": {
+        "path": "long-running-demo",
+        "httpMethod": "POST"
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.splitInBatches",
+      "name": "Split In Batches",
+      "parameters": {
+        "batchSize": 1
+      },
+      "position": [320, 100]
+    },
+    {
+      "id": "3",
+      "type": "n8n-nodes-base.function",
+      "name": "Process Batch",
+      "parameters": {
+        "functionCode": "return items;"
+      },
+      "position": [520, 100]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches": {
+      "main": [
+        [
+          {
+            "node": "Process Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Batch": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "⚠️ BAD: Unbounded loop between Split In Batches and Process Batch; no max iterations or stop condition. FlowLint R6 warns.",
+    "notes": [
+      "Cycle without guard can run indefinitely",
+      "Add max iterations or break condition"
+    ]
+  }
+}
