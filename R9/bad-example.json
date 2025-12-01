@@ -1,0 +1,53 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook",
+      "parameters": {
+        "path": "config-literals-demo",
+        "httpMethod": "POST"
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Call API (Staging Hardcoded)",
+      "parameters": {
+        "url": "https://api.staging.example.com/v1/leads",
+        "method": "POST",
+        "options": {},
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "environment",
+              "value": "staging"
+            }
+          ]
+        }
+      },
+      "position": [360, 100]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Call API (Staging Hardcoded)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "⚠️ BAD: Base URL and env name are hardcoded for staging. FlowLint R9 warns.",
+    "notes": [
+      "Hardcoded environment values break portability",
+      "Use $env or credentials for base URLs and environment labels"
+    ]
+  }
+}

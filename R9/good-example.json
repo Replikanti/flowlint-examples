@@ -1,0 +1,83 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook",
+      "parameters": {
+        "path": "config-literals-demo",
+        "httpMethod": "POST"
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.set",
+      "name": "Set Environment Vars",
+      "typeVersion": 2,
+      "parameters": {
+        "mode": "manual",
+        "values": {
+          "string": [
+            {
+              "name": "envName",
+              "value": "={{ $env.ENV_NAME || 'dev' }}"
+            }
+          ]
+        }
+      },
+      "position": [260, 100]
+    },
+    {
+      "id": "3",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Call API (Parametrized)",
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/v1/leads",
+        "method": "POST",
+        "options": {},
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "environment",
+              "value": "={{ $json.envName }}"
+            }
+          ]
+        }
+      },
+      "position": [520, 100]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Set Environment Vars",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Environment Vars": {
+      "main": [
+        [
+          {
+            "node": "Call API (Parametrized)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "✅ GOOD: Base URL and env name come from expressions ($env). No hardcoded environment literals; FlowLint R9 passes.",
+    "notes": [
+      "Portable across dev/stage/prod with different env vars",
+      "Safer deployment and review",
+      "Use credentials for auth tokens combined with env for base URLs"
+    ]
+  }
+}
