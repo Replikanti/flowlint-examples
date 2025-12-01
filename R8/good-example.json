@@ -1,0 +1,87 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook",
+      "parameters": {
+        "path": "unused-data-demo",
+        "httpMethod": "POST"
+      },
+      "position": [100, 120]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Enrich (Clearbit)",
+      "parameters": {
+        "url": "https://person.clearbit.com/v2/people/find",
+        "method": "GET",
+        "options": {}
+      },
+      "position": [320, 120]
+    },
+    {
+      "id": "3",
+      "type": "n8n-nodes-base.emailSend",
+      "name": "Send Email",
+      "parameters": {
+        "fromEmail": "ops@example.com",
+        "toEmail": "sales@example.com",
+        "subject": "New lead from {{ $json.email }}",
+        "text": "Company: {{ $json.company || $json.enriched.company }}, Role: {{ $json.role || $json.enriched.role }}"
+      },
+      "position": [540, 60]
+    },
+    {
+      "id": "4",
+      "type": "n8n-nodes-base.googleSheets",
+      "name": "Save to Sheet",
+      "parameters": {
+        "spreadsheetId": "abc123xyz",
+        "range": "Sheet1!A1",
+        "options": {}
+      },
+      "position": [540, 180]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Enrich (Clearbit)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enrich (Clearbit)": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Save to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "✅ GOOD: Enrichment output is consumed by email and storage; no unused data. FlowLint R8 passes.",
+    "notes": [
+      "Downstream consumers use enrichment fields",
+      "No wasted API calls",
+      "Clear reviewer intent"
+    ]
+  }
+}
