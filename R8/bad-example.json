@@ -1,0 +1,63 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook",
+      "parameters": {
+        "path": "unused-data-demo",
+        "httpMethod": "POST"
+      },
+      "position": [100, 120]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Enrich (Clearbit)",
+      "parameters": {
+        "url": "https://person.clearbit.com/v2/people/find",
+        "method": "GET",
+        "options": {}
+      },
+      "position": [320, 60]
+    },
+    {
+      "id": "3",
+      "type": "n8n-nodes-base.googleSheets",
+      "name": "Save to Sheet",
+      "parameters": {
+        "spreadsheetId": "abc123xyz",
+        "range": "Sheet1!A1",
+        "options": {}
+      },
+      "position": [320, 200]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Enrich (Clearbit)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Save to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "⚠️ BAD: Enrichment call is made but its output is never consumed by downstream nodes. FlowLint R8 warns.",
+    "notes": [
+      "Two branches from Webhook; Save to Sheet does not receive enrichment data",
+      "Remove or wire enrichment to a consumer (email/log/storage)"
+    ]
+  }
+}
