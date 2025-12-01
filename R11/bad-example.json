@@ -1,0 +1,45 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook",
+      "parameters": {
+        "path": "deprecated-demo",
+        "httpMethod": "POST"
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "HTTP Request (Legacy)",
+      "parameters": {
+        "url": "https://api.legacy.example.com/v1/data",
+        "method": "GET",
+        "options": {}
+      },
+      "position": [360, 100]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (Legacy)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "⚠️ BAD: Uses node type on the deprecated list (e.g., legacy HTTP Request). FlowLint R11 warns to migrate.",
+    "notes": [
+      "Replace with supported node (HTTP Request v2 or vendor-specific node)",
+      "Deprecated nodes may lose security fixes and break on upgrades"
+    ]
+  }
+}

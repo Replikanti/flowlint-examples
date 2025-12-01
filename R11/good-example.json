@@ -1,0 +1,49 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook",
+      "parameters": {
+        "path": "deprecated-demo",
+        "httpMethod": "POST"
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.httpRequestV2",
+      "name": "HTTP Request (v2)",
+      "parameters": {
+        "url": "https://api.new.example.com/v2/data",
+        "method": "GET",
+        "options": {
+          "retry": {
+            "count": 3
+          }
+        }
+      },
+      "position": [360, 100]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (v2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "✅ GOOD: Uses supported node type (v2). FlowLint R11 passes.",
+    "notes": [
+      "Migrated away from deprecated node",
+      "Ready for platform upgrades and security fixes"
+    ]
+  }
+}
