@@ -41,10 +41,10 @@ graph LR
 ```
 
 **FlowLint output:**
-``+
+```
 ⚠️ R7 (should): Error branch from "Push to CRM" has no alert/log before exiting.
 Add Slack/Email/Log or DLQ step.
-``+
+```
 
 ---
 
