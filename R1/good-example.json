@@ -1,0 +1,62 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook Trigger",
+      "parameters": {
+        "path": "new-lead",
+        "httpMethod": "POST"
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Create Lead (API) with Retry",
+      "parameters": {
+        "url": "https://api.crm.example.com/leads",
+        "method": "POST",
+        "options": {
+          "retry": {
+            "count": 3,
+            "strategy": "exponential",
+            "baseMs": 500,
+            "maxDelay": 5000,
+            "jitter": true
+          },
+          "timeout": 30000
+        }
+      },
+      "position": [360, 100]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Create Lead (API) with Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "✅ GOOD: HTTP request with exponential retry/backoff (3 attempts, 500ms base, jitter) so FlowLint R1 passes.",
+    "retry_policy": {
+      "count": 3,
+      "strategy": "exponential",
+      "baseMs": 500,
+      "maxDelay": 5000,
+      "jitter": true
+    },
+    "notes": [
+      "FlowLint sees options.retry and does not flag R1",
+      "Handles transient 429/5xx responses without failing the run",
+      "Safe to combine with max concurrency 5 for bulk imports"
+    ]
+  }
+}
