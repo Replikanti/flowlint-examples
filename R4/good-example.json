@@ -1,0 +1,65 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook Trigger",
+      "parameters": {
+        "path": "secrets-demo",
+        "httpMethod": "POST"
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Call Partner API (Secure)",
+      "parameters": {
+        "url": "https://api.partner.example.com/v1/resource",
+        "method": "GET",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "genericAuthTypeOptions": {
+          "headerName": "x-api-key"
+        },
+        "options": {},
+        "headerParametersUi": {
+          "parameter": [
+            {
+              "name": "User-Agent",
+              "value": "FlowLintExample/1.0"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "cred-http-header-api-key",
+          "name": "Partner API Key"
+        }
+      },
+      "position": [360, 100]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Call Partner API (Secure)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "✅ GOOD: API key pulled from credentials; no literal secrets in workflow JSON.",
+    "notes": [
+      "FlowLint R4 passes because the sensitive header value is sourced from credentials",
+      "Safe to commit; key lives outside git",
+      "Can also use $env.VAR for environments without credentials"
+    ]
+  }
+}

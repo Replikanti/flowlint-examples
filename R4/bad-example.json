@@ -1,0 +1,53 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook Trigger",
+      "parameters": {
+        "path": "secrets-demo",
+        "httpMethod": "POST"
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Call Partner API",
+      "parameters": {
+        "url": "https://api.partner.example.com/v1/resource",
+        "method": "GET",
+        "options": {},
+        "headerParametersUi": {
+          "parameter": [
+            {
+              "name": "x-api-key",
+              "value": "sk_live_1234567890abcdef"
+            }
+          ]
+        }
+      },
+      "position": [360, 100]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Call Partner API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "❌ BAD: Hardcoded API key in header (x-api-key). FlowLint R4 flags secret literals.",
+    "notes": [
+      "Move key to credentials or env variable",
+      "Avoid committing keys to git/PRs"
+    ]
+  }
+}
