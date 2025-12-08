@@ -1,0 +1,87 @@
+{
+  "name": "R13 Bad Example - Webhook with Heavy Processing Before Response",
+  "nodes": [
+    {
+      "id": "webhook-trigger",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook Trigger",
+      "parameters": {
+        "path": "payment-webhook",
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "position": [250, 300]
+    },
+    {
+      "id": "http-request",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Fetch Customer Data",
+      "parameters": {
+        "url": "https://api.example.com/customers/{{ $json.customerId }}",
+        "method": "GET",
+        "authentication": "genericCredentialType",
+        "options": {
+          "retryOnFail": true,
+          "maxRetries": 3
+        }
+      },
+      "position": [450, 300]
+    },
+    {
+      "id": "database-write",
+      "type": "n8n-nodes-base.postgres",
+      "name": "Save to Database",
+      "parameters": {
+        "operation": "insert",
+        "table": "payments",
+        "columns": "customer_id, amount, status"
+      },
+      "position": [650, 300]
+    },
+    {
+      "id": "respond-webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "name": "Respond to Webhook",
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"status\": \"success\" }"
+      },
+      "position": [850, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Customer Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Customer Data": {
+      "main": [
+        [
+          {
+            "node": "Save to Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Database": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
