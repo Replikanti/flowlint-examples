@@ -1,0 +1,82 @@
+{
+  "name": "R14 Bad Example - HTTP Retry Without Retry-After Handling",
+  "nodes": [
+    {
+      "id": "webhook-trigger",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Order Webhook",
+      "parameters": {
+        "path": "orders",
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "position": [250, 300]
+    },
+    {
+      "id": "http-stripe-charge",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Call Stripe API",
+      "parameters": {
+        "url": "https://api.stripe.com/v1/charges",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "options": {
+          "retryOnFail": true,
+          "maxRetries": 5,
+          "retryDelay": 1000
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "amount",
+              "value": "={{ $json.amount }}"
+            },
+            {
+              "name": "currency",
+              "value": "usd"
+            }
+          ]
+        }
+      },
+      "position": [450, 300]
+    },
+    {
+      "id": "respond-webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "name": "Respond Success",
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"status\": \"charged\" }"
+      },
+      "position": [650, 300]
+    }
+  ],
+  "connections": {
+    "Order Webhook": {
+      "main": [
+        [
+          {
+            "node": "Call Stripe API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Stripe API": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "BAD: This workflow calls Stripe API with retry enabled but uses fixed 1-second delay, completely ignoring Retry-After headers from 429 responses. This will cause aggressive retry storms and potential API key suspension."
+  }
+}

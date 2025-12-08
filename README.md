@@ -1,6 +1,6 @@
 # FlowLint Examples
 
-This directory contains workflow examples for each FlowLint rule (R1-R13). Each rule has:
+This directory contains workflow examples for each FlowLint rule (R1-R14). Each rule has:
 
 - **Bad examples** (❌) showing code that triggers the rule
 - **Good examples** (✅) showing compliant patterns
@@ -138,6 +138,15 @@ flowlint-examples/
 - Webhooks must respond immediately before heavy processing
 - Prevents timeouts and duplicate events from webhook retries
 - [→ See R13 examples](./R13/README.md)
+
+---
+
+### R14: HTTP Retry-After Header Compliance 🔁
+**Severity:** `should`
+- HTTP nodes with retry must respect Retry-After headers (429/503)
+- Prevents aggressive retry storms and API bans
+- Ensures reliable API integrations with Stripe, Shopify, GitHub, Notion, etc.
+- [→ See R14 examples](./R14/README.md)
 
 ---
 
