@@ -1,0 +1,82 @@
+{
+  "name": "R14 Good Example - HTTP Retry With Retry-After Handling",
+  "nodes": [
+    {
+      "id": "webhook-trigger",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Order Webhook",
+      "parameters": {
+        "path": "orders",
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "position": [250, 300]
+    },
+    {
+      "id": "http-stripe-charge",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Call Stripe API with Retry-After",
+      "parameters": {
+        "url": "https://api.stripe.com/v1/charges",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "options": {
+          "retryOnFail": true,
+          "maxRetries": 5,
+          "retryDelay": "={{ (function() { const retryAfter = $json.headers['retry-after']; if (retryAfter) { const seconds = parseInt(retryAfter); if (!isNaN(seconds)) return seconds * 1000; const date = new Date(retryAfter); return date - Date.now(); } return Math.min(1000 * Math.pow(2, $execution.retryCount || 0), 60000); })() }}"
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "amount",
+              "value": "={{ $json.amount }}"
+            },
+            {
+              "name": "currency",
+              "value": "usd"
+            }
+          ]
+        }
+      },
+      "position": [450, 300]
+    },
+    {
+      "id": "respond-webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "name": "Respond Success",
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"status\": \"charged\" }"
+      },
+      "position": [650, 300]
+    }
+  ],
+  "connections": {
+    "Order Webhook": {
+      "main": [
+        [
+          {
+            "node": "Call Stripe API with Retry-After",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Stripe API with Retry-After": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "description": "GOOD: This workflow calls Stripe API and respects Retry-After headers. The retryDelay expression parses the header (either as seconds or HTTP date), falling back to exponential backoff if missing. This prevents API bans and ensures reliable production behavior."
+  }
+}
