@@ -1,0 +1,118 @@
+{
+  "name": "R13 Good Example - Webhook with Immediate Acknowledgment",
+  "nodes": [
+    {
+      "id": "webhook-trigger",
+      "type": "n8n-nodes-base.webhook",
+      "name": "Webhook Trigger",
+      "parameters": {
+        "path": "payment-webhook",
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "position": [250, 300]
+    },
+    {
+      "id": "respond-webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "name": "Respond to Webhook",
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"status\": \"accepted\" }",
+        "responseCode": 200
+      },
+      "position": [450, 300]
+    },
+    {
+      "id": "http-request",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Fetch Customer Data",
+      "parameters": {
+        "url": "https://api.example.com/customers/{{ $json.customerId }}",
+        "method": "GET",
+        "authentication": "genericCredentialType",
+        "options": {
+          "retryOnFail": true,
+          "maxRetries": 3
+        }
+      },
+      "position": [650, 300]
+    },
+    {
+      "id": "database-write",
+      "type": "n8n-nodes-base.postgres",
+      "name": "Save to Database",
+      "parameters": {
+        "operation": "insert",
+        "table": "payments",
+        "columns": "customer_id, amount, status"
+      },
+      "position": [850, 300]
+    },
+    {
+      "id": "error-handler",
+      "type": "n8n-nodes-base.slack",
+      "name": "Error Alert",
+      "parameters": {
+        "channel": "#alerts",
+        "text": "Payment webhook processing failed: {{ $json.error }}"
+      },
+      "position": [850, 450]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        [
+          {
+            "node": "Fetch Customer Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Customer Data": {
+      "main": [
+        [
+          {
+            "node": "Save to Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ],
+      "error": [
+        [
+          {
+            "node": "Error Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Database": {
+      "error": [
+        [
+          {
+            "node": "Error Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

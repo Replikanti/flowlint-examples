@@ -1,6 +1,6 @@
 # FlowLint Examples
 
-This directory contains workflow examples for each FlowLint rule (R1-R12). Each rule has:
+This directory contains workflow examples for each FlowLint rule (R1-R13). Each rule has:
 
 - **Bad examples** (❌) showing code that triggers the rule
 - **Good examples** (✅) showing compliant patterns
@@ -130,6 +130,14 @@ flowlint-examples/
 - Error-prone nodes (API, mutations) must have error branches
 - Ensures all failures are handled
 - [→ See R12 examples](./R12/README.md)
+
+---
+
+### R13: Webhook Acknowledgment Pattern 🔔
+**Severity:** `must`
+- Webhooks must respond immediately before heavy processing
+- Prevents timeouts and duplicate events from webhook retries
+- [→ See R13 examples](./R13/README.md)
 
 ---
 
