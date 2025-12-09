@@ -17,6 +17,8 @@
 - **Extended backoffs** or **IP blocking** from API providers
 - **Potential API key suspension** for abuse
 
+> **Note (v0.4.1+):** Due to n8n UI limitations preventing complex expressions in the `Wait Between Tries` field, FlowLint v0.4.1+ **accepts static integer delays** as valid configuration to prevent blocking users who enable retries (R1). However, respecting `Retry-After` via a custom loop is still the recommended best practice for production robustness.
+
 ---
 
 ## 🔧 How to Fix R14 in n8n
