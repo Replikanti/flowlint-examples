@@ -8,7 +8,7 @@
 
 **FlowLint check (how R7 detects warnings):**
 - Looks at error edges from API/mutation nodes
-- Flags error branches that **do not contain** a log/alert node (Slack, Email, Log, Webhook, Queue) before merging back
+- Flags error branches that **do not contain** a log/alert node (Slack, Email, Log, Webhook, Queue) or a **Stop and Error** node before merging back
 - Encourages visibility instead of silent retries or merges
 
 **Why it matters:** Without alerts/logs, errors disappear and data loss goes unnoticed.
@@ -17,7 +17,7 @@
 
 ## 🔧 How to Fix R7 in n8n
 
-1. Add a **Slack/Email/Log** node on the error branch.  
+1. Add a **Slack/Email/Log** node on the error branch OR use a **Stop and Error** node.
 2. Include context (request ID, payload) and severity channel.  
 3. Optionally send to DLQ/queue for reprocessing.
 
