@@ -109,7 +109,7 @@ Instructions:
         `;
 
         const response = await openai.chat.completions.create({
-            model: 'gpt-4o', 
+            model: 'gpt-5.1-codex', 
             messages: [
                 { role: 'system', content: 'You are a meticulous technical writer.' },
                 { role: 'user', content: prompt }
