@@ -1,0 +1,25 @@
+{
+  "name": "flowlint-examples",
+  "version": "1.0.0",
+  "description": "This directory contains workflow examples for each FlowLint rule (R1-R14). Each rule has:",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Replikanti/flowlint-examples.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Replikanti/flowlint-examples/issues"
+  },
+  "homepage": "https://github.com/Replikanti/flowlint-examples#readme",
+  "devDependencies": {
+    "openai": "^6.10.0",
+    "tsx": "^4.21.0"
+  }
+}

@@ -1,0 +1,30 @@
+name: AI Docs Audit
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 1 * *' # Run monthly to polish docs
+
+jobs:
+  audit-docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Audit Documentation
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: npx tsx scripts/update-rule-docs.ts
+
+      - name: Commit Changes
+        uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ef168f4633ca # v5.0.1
+        with:
+          commit_message: "docs: ai-powered improvements to rule documentation"
