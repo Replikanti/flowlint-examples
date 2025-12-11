@@ -25,6 +25,6 @@ jobs:
         run: npx tsx scripts/update-rule-docs.ts
 
       - name: Commit Changes
-        uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ef168f4633ca # v5.0.1
+        uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842 # v5.0.1
         with:
           commit_message: "docs: ai-powered improvements to rule documentation"
