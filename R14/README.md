@@ -323,4 +323,3 @@ const delay = Math.min(parsedDelay, 300000); // Max 5 minutes
 
 **Last Updated:** 2025-12-08
 **FlowLint Version:** 0.5.1+
-**Related Issue:** [#136](https://github.com/Replikanti/flowlint-app/issues/136)
