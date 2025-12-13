@@ -20,7 +20,7 @@ jobs:
           owner: ${{ github.repository_owner }}
 
       - name: Trigger FlowLint Web Rebuild
-        uses: peter-evans/repository-dispatch@v3 # v3.0.0
+        uses: peter-evans/repository-dispatch@v4
         with:
           token: ${{ steps.app-token.outputs.token }}
           repository: Replikanti/flowlint-web
