@@ -1,7 +1,7 @@
 {
   "name": "flowlint-examples",
   "version": "1.0.0",
-  "description": "This directory contains workflow examples for each FlowLint rule (R1-R14). Each rule has:",
+  "description": "This directory contains workflow examples for each FlowLint rule (R1-R15). Each rule has:",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

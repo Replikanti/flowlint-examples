@@ -1,6 +1,6 @@
 # FlowLint Examples
 
-This directory contains workflow examples for each FlowLint rule (R1-R14). Each rule has:
+This directory contains workflow examples for each FlowLint rule (R1-R15). Each rule has:
 
 - **Bad examples** (❌) showing code that triggers the rule
 - **Good examples** (✅) showing compliant patterns
